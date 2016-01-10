@@ -1,7 +1,7 @@
 #this class implements a tabular storage for a Qsa table
 import numpy as np
 import pyrlcade
-
+#not used
 class q_learning_updater(object):
     
     def init(self,update_storage,gamma,use_multiactionnet,state_input_size,debug_level,update_freeze_rate):

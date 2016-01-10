@@ -17,20 +17,24 @@ data_dir = '/home/erdem/Desktop/pyrlcade-master/data/'
 save_interval = 15*60
 
 #run for a total number of episodes
-train_episodes=10000
-max_steps=10000
+train_episodes=20000
+max_steps=20000
 
 use_float32=True
 
-random_seed = 4
+random_seed = 123
 initial_r_sum_avg=-21.0
 
 reward_multiplier=1.0
 
+#learning_rate = 0.4
 learning_rate = 0.4
+learning_rate_decay_type='geometric'
+learning_rate_decay=0.99988
+learning_rate_min=0.01
 
 save_images=False
-image_save_dir="/home/erdem/Desktop/pyrlcade-master/images" #I Guess that underutilized windows partitition with all that storage is good for something...
+image_save_dir="/home/erdem/Desktop/pyrlcade-master/images/" #I Guess that underutilized windows partitition with all that storage is good for something...
 
 qsa_type='tabular'
 
@@ -43,7 +47,6 @@ epsilon_min=0.01
 epsilon_decay=0.9997
 #epsilon_decay = (epsilon - epsilon_min)/10000
 gamma=0.999
-tabular_learning_rate=0.4
 
 action_type='e_greedy'
 
@@ -56,8 +59,8 @@ print_state_debug=True
 vis_type='pyrlcade'
 
 #in sarsa mode, this tells how often to display, -1 for none
-showevery=1
-fastforwardskip=1
+showevery=250
+fastforwardskip=20
 
 #these affect the display. They tell the size in pixels of the display, the axis size, and how many frames to skip
 display_width=1280

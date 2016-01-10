@@ -1,7 +1,7 @@
 #this class implements Neural Network storage for a Qsa table
 from nnet_toolkit import nnet
 import numpy as np
-
+#not used
 class state_expander_transformer(object):
     def init(self,mins,maxs,new_size,width_scale=1.0):
         layers = [];

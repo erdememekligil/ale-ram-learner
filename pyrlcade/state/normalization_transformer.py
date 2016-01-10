@@ -1,6 +1,6 @@
 #this class implements a tabular storage for a Qsa table
 import numpy as np
-
+#not used
 
 class normalization_transformer(object):
     #sets the normalization range

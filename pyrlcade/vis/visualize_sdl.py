@@ -172,8 +172,7 @@ class visualize_sdl(object):
                 font = pygame.font.SysFont("Ubuntu",100)
                 text = font.render(("FAST FORWARD"),1,(255,64,64))
                 self.screen.blit(text,(300,300))
-
-            if(stats['save_images']):
+            elif(stats['save_images']):
                 pygame.image.save(self.screen,stats['image_save_dir'] + "frame_" + str(self.framenum) + ".png")
                 self.framenum = self.framenum + 1           
 

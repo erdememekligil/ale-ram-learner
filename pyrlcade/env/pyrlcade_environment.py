@@ -13,6 +13,7 @@ class pyrlcade_environment(object):
         self.ale.setInt("random_seed",123)
         self.ale.setBool("color_averaging",1)
         self.ale.setInt("frame_skip",ale_frame_skip)
+        self.ale.setFloat("repeat_action_probability", 0.0)
         # self.ale.setBool('display_screen', True)
 
         self.ale.loadROM(rom_file)

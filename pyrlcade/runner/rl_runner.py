@@ -125,7 +125,7 @@ class rl_runner(object):
             self.sim.reset_state()
             self.s = self.state_ram_extractor.extract_state(self.sim.get_state())
             #choose a from s using policy derived from Q
-            (self.a,self.qsa_tmp) = self.choose_action(self.s,p);
+            (self.a,self.qsa_tmp) = self.choose_action(self.s,p)
 
             r_list = []
             self.r_sum = 0.0
@@ -143,7 +143,7 @@ class rl_runner(object):
 
                 #print("s: " + str(self.s))
                 ##take action a, observe r, s'
-                self.sim.set_action(self.a)
+                self.sim.set_action(self.actionList[self.a])
 
                 is_terminal = self.sim.step()
                 #print("Terminal: " + str(self.sim.is_terminal))
@@ -153,7 +153,11 @@ class rl_runner(object):
 
                 #choose a' from s' using policy derived from Q
                 (self.a_prime,self.qsa_prime_list) = self.choose_action(self.s_prime,p)
-                
+
+                #if ball is not in place, dont update.
+                # if(~self.state_ram_extractor.isBallExists(self.s_prime)):
+                #     continue
+
                 #do debugging with keyboard input
                 if(self.keyboard_input):
                     self.a_prime = transform_keys(v.get_keys())
@@ -319,6 +323,7 @@ class rl_runner(object):
             qsa_list = self.qsa_learner.get_qsa_list(state)
             if(np.random.random() < self.epsilon):
                 a = np.random.randint(self.num_actions)
+                #a = self.actionList[np.random.randint(self.num_actions)-1]
                 #print("selected action " + str(a) + "which had QSA value of: " + str(qsa_list[a]))
             else:
                 a = np.argmax(np.array(qsa_list))
@@ -331,7 +336,7 @@ class rl_runner(object):
                 #this will give a moving average estimate of the probability of selecting a different action
                 #(used for printing only)
                 self.prob_of_different_action = 0.0
-            qsa_list = np.array([self.qsa.load(state,i) for i in range(self.num_actions)])
+            qsa_list = np.array([self.qsa.load(state,i) for i in range(self.num_actions)]) #get_qsa_list
             qsa_std = np.std(qsa_list)
             self.qsa_std_avg = self.qsa_avg_alpha*self.qsa_std_avg + (1.0 - self.qsa_avg_alpha)*qsa_std
             noise = self.epsilon*self.qsa_std_avg*np.random.rand(self.num_actions)
@@ -407,8 +412,10 @@ class rl_runner(object):
 
         self.episode = 0
         self.total_steps=0
+        #self.actionList = np.ndarray(6, buffer=np.array([0,1,2,3,4,5]), offset=0, dtype=int)
+        self.actionList = self.sim.ale.getMinimalActionSet()
 
-        self.num_actions = self.sim.ale.getMinimalActionSet().size
+        self.num_actions = self.actionList.size
 
         if(p['qsa_type'] == 'tabular'):
             tabular_granularity = True

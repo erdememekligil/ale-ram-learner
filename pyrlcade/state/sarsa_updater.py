@@ -6,20 +6,19 @@ class sarsa_updater(object):
     
     def init(self,update_storage,gamma,use_multiactionnet,state_input_size,debug_level,update_freeze_rate):
         self.gamma = gamma
-        self.storage = update_storage
+        self.storage = update_storage #tabular_ram_qsa
         self.use_multiactionnet = use_multiactionnet
         self.debug_level = debug_level
         self.update_freeze_rate = update_freeze_rate
         self.update_count = 0
 
     def update(self,alpha,state,action,reward,s_prime,a_prime,qsa_prime_list,is_terminal):
-        qsa_prime = qsa_prime_list[a_prime]
+        qsa_prime = qsa_prime_list[a_prime] # Q(s',a')
 
         if(self.debug_level >= 4):
             qsa_old = np.copy(self.storage.load(state,action))
 
-        self.storage.update(alpha,state,action, \
-            reward + self.gamma*qsa_prime)
+        self.storage.update(alpha,state,action, reward + self.gamma*qsa_prime)
 
         if(self.debug_level >= 4):
             qsa = np.copy(self.storage.load(state,action))
@@ -33,8 +32,8 @@ class sarsa_updater(object):
                         print('freezing net...')
                 self.update_count +=1
 
-                
-            
+
+    #Q values for each action at that state
     def get_qsa_list(self,state):
         if(self.use_multiactionnet):
             return self.storage.loadall(state)

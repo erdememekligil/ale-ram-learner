@@ -10,9 +10,12 @@ class tabular_ram_qsa(object):
 
         #self.arr_mins = (np.zeros(self.size.shape)).astype(np.int64)
         #self.arr_maxs = (self.size - np.ones(self.size.shape)).astype(np.int64)
+        #data[18][5][34][3][7][34]
         self.data = []
         for a in range(self.num_actions):
-            self.data.append(-np.random.random(self.size + np.ones(self.size.shape))/100.0)
+            temp = -np.random.random(self.size + np.ones(self.size.shape))/100.0
+            temp = -np.zeros(self.size + np.ones(self.size.shape))/100.0
+            self.data.append(temp)
 
     def store(self,state,action,value):
         s =  state - self.mins
@@ -20,11 +23,13 @@ class tabular_ram_qsa(object):
         s = np.maximum(s,self.mins)
         self.data[action][tuple(s)] = value
 
+    #value: r + gamma * Q(s',a')
     def update(self,alpha,state,action,value):
         s =  state - self.mins
         s = np.minimum(s,self.maxs)
         s = np.maximum(s,self.mins)
         d = self.data[action][tuple(s)]
+        #Q(s,a) <- Q(s,a) + alpha * ( )
         self.data[action][tuple(s)] = d + alpha*(value - d)
         #above can also be expressed as:
         #d*(1 - self.alpha) + self.alpha*value
