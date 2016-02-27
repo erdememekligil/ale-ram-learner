@@ -297,7 +297,9 @@ class rl_runner(object):
 
             if(time.time() - save_time > save_interval or save_and_exit == True):
                 print('saving results...')
-                self.save_results(p['results_dir'] + self.simname + self.version + '.h5py',p)
+                m, s = divmod(time.time() - self.start_time, 60)
+                h, m = divmod(m, 60)
+                self.save_results(p['results_dir'] + self.simname + self.version + '_' + str(h) + '.h5py',p)
                 save_time = time.time();
 
             if(quit==True or save_and_exit==True):
@@ -321,7 +323,7 @@ class rl_runner(object):
         #epsilon-greedy
         if(p['action_type'] == 'e_greedy'):
             qsa_list = self.qsa_learner.get_qsa_list(state)
-            if(np.random.random() < self.epsilon):
+            if 'qsa_values' not in p and np.random.random() < self.epsilon:
                 a = np.random.randint(self.num_actions)
                 #a = self.actionList[np.random.randint(self.num_actions)-1]
                 #print("selected action " + str(a) + "which had QSA value of: " + str(qsa_list[a]))
@@ -413,7 +415,7 @@ class rl_runner(object):
         self.episode = 0
         self.total_steps=0
         #self.actionList = np.ndarray(6, buffer=np.array([0,1,2,3,4,5]), offset=0, dtype=int)
-        self.actionList = self.sim.ale.getMinimalActionSet()
+        self.actionList = self.sim.legal_actions
 
         self.num_actions = self.actionList.size
 

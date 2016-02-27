@@ -38,7 +38,8 @@ def load_results(filename):
             for g_k,g_v in group.iteritems():
                 p[str(g_k)] = g_v.value
             results[str(k)] = p
-    f_handle.close();
+    f_handle.close()
+    print results
     return results
 
 if __name__ == '__main__':

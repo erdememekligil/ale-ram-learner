@@ -22,6 +22,7 @@ class main_rerunner(object):
     def run(self,h5py_file,random_seed,argv=None):
         f = load_results(h5py_file)
         p = f['parameters']
+        p['qsa_values'] = f['qsa_values']
 
 
         #grab extra parameters from command line

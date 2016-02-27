@@ -1,4 +1,5 @@
 *.pyc
+images/
 
 #ignore all data files
 *.h5py

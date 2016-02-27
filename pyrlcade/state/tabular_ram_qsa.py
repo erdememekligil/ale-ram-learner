@@ -14,8 +14,10 @@ class tabular_ram_qsa(object):
         self.data = []
         for a in range(self.num_actions):
             temp = -np.random.random(self.size + np.ones(self.size.shape))/100.0
-            temp = -np.zeros(self.size + np.ones(self.size.shape))/100.0
+            #temp = -np.zeros(self.size + np.ones(self.size.shape))/100.0
             self.data.append(temp)
+        if 'qsa_values' in p:
+            self.data = p['qsa_values']
 
     def store(self,state,action,value):
         s =  state - self.mins
