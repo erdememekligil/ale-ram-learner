@@ -1,5 +1,7 @@
 *.pyc
 images/
+results/
+.idea/
 
 #ignore all data files
 *.h5py

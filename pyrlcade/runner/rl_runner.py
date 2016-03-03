@@ -7,6 +7,7 @@ import numpy as np
 from pyrlcade.env.pyrlcade_environment import pyrlcade_environment
 from pyrlcade.misc.clear import clear
 from pyrlcade.misc.save_h5py import save_results,load_results
+from pyrlcade.state.breakout_ram_extractor import breakout_ram_extractor
 from pyrlcade.state.tabular_ram_qsa import tabular_ram_qsa
 from pyrlcade.state.nnet_qsa import nnet_qsa
 from pyrlcade.state.nnet_qsa_allactions import nnet_qsa_allactions
@@ -50,8 +51,7 @@ class rl_runner(object):
         np.random.seed(p['random_seed'])
 
         #initialize environment
-        self.sim = pyrlcade_environment()
-        self.sim.init(p['rom_file'],p['ale_frame_skip'])
+        self.sim = pyrlcade_environment(p['rom_file'], p['ale_frame_skip'], p.get('custom_reward_class', None))
 
         self.rl_algo = p['rl_algo']
         if(p.has_key('replay_buf_size')):
@@ -275,18 +275,24 @@ class rl_runner(object):
                 print((" Time %d:%02d:%02d" % (h, m, s)))
 
             if(p['decay_type'] == 'geometric'):
-                self.epsilon = self.epsilon * self.epsilon_decay
-                self.epsilon = max(p['epsilon_min'],self.epsilon)
+                new_epsilon = self.epsilon * self.epsilon_decay
+                self.epsilon = max(self.epsilon_min, new_epsilon)
             elif(p['decay_type'] == 'linear'):
-                self.epsilon = self.epsilon - self.epsilon_decay
-                self.epsilon = max(p['epsilon_min'],self.epsilon)
+                new_epsilon = self.epsilon - self.epsilon_decay
+                self.epsilon = max(self.epsilon_min, new_epsilon)
 
             if(p.has_key('learning_rate_decay_type') and p['learning_rate_decay_type'] == 'geometric'):
-                self.alpha = self.alpha * p['learning_rate_decay']
-                self.alpha = max(p['learning_rate_min'],self.alpha)
+                self.alpha = self.alpha * self.learning_rate_decay
+                self.alpha = max(self.learning_rate_min,self.alpha)
             elif(p.has_key('learning_rate_decay_type') and p['learning_rate_decay_type'] == 'linear'):
-                self.alpha = self.alpha - p['learning_rate_decay']
-                self.alpha = max(p['learning_rate_min'],self.alpha)
+                self.alpha = self.alpha - self.learning_rate_decay
+                self.alpha = max(self.learning_rate_min,self.alpha)
+
+
+            if(self.epsilon_reset_count > 0 and new_epsilon < self.epsilon_min):
+                self.epsilon += self.epsilon_init / 2
+                self.alpha += (self.learning_rate_init - self.alpha) / 2 #Todo: test if this works.
+                self.epsilon_reset_count -= 1
 
 
             for i in range(9):
@@ -409,7 +415,9 @@ class rl_runner(object):
 
         self.epsilon = p['epsilon']
         self.epsilon_decay = p.get('epsilon_decay',1.0)
-        self.epsilon_min = p.get('epsilon_min',self.epsilon)
+        self.epsilon_min = p.get('epsilon_min',0)
+        self.epsilon_init = self.epsilon
+        self.epsilon_reset_count = p.get('epsilon_reset_count',0)
         self.gamma = p['gamma']
 
         self.episode = 0
@@ -423,7 +431,11 @@ class rl_runner(object):
             tabular_granularity = True
         else:
             tabular_granularity = False
-        self.state_ram_extractor = pong_ram_extractor(tabular_granularity)
+
+        if p['rom_file'].endswith("breakout.bin"):
+            self.state_ram_extractor = breakout_ram_extractor(tabular_granularity)
+        elif p['rom_file'].endswith("pong.bin"):
+            self.state_ram_extractor = pong_ram_extractor(tabular_granularity)
 
         (state_size,state_mins,state_maxs) = self.state_ram_extractor.get_size_and_range()
         print("state_mins: " + str(state_mins))
@@ -431,6 +443,10 @@ class rl_runner(object):
 
         state_input_size = state_size
         self.alpha = p['learning_rate']
+        self.learning_rate_init = self.alpha
+        self.learning_rate_decay = p['learning_rate_decay']
+        self.learning_rate_min = p['learning_rate_min']
+
         if(p.has_key('nnet_use_combined_actions') and p['nnet_use_combined_actions'] == True):
             self.use_combined_actions = True
         else:

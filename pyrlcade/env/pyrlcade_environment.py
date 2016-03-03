@@ -3,9 +3,8 @@ import numpy as np
 
 from pyrlcade.env.ale_python_interface.ale_python_interface import ALEInterface
 
-
 class pyrlcade_environment(object):
-    def init(self,rom_file,ale_frame_skip):
+    def __init__(self,rom_file,ale_frame_skip, custom_reward_class):
 
         self.ale = ALEInterface()
 
@@ -17,12 +16,18 @@ class pyrlcade_environment(object):
         # self.ale.setBool('display_screen', True)
 
         self.ale.loadROM(rom_file)
-        self.legal_actions = self.ale.getLegalActionSet()
+        self.legal_actions = self.ale.getMinimalActionSet()
         ram_size = self.ale.getRAMSize()
         self.ram = np.zeros((ram_size),dtype=np.uint8)
         self.ale.getRAM(self.ram)
 
         self.state = self.ale.getRAM(self.ram)
+
+        if custom_reward_class is None:
+            self.custom_reward = None
+            return
+        else:
+            self.custom_reward = custom_reward_class
 
     def reset_state(self):
         self.ale.reset_game()
@@ -32,6 +37,10 @@ class pyrlcade_environment(object):
 
     def step(self):
         self.reward = self.ale.act(self.action)
+
+        if self.custom_reward is not None:
+            self.reward += self.custom_reward.get_custom_reward(self.get_state())
+
         is_terminal = self.ale.game_over()
         return is_terminal
 
