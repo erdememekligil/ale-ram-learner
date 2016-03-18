@@ -7,6 +7,7 @@ import numpy as np
 from pyrlcade.env.pyrlcade_environment import pyrlcade_environment
 from pyrlcade.misc.clear import clear
 from pyrlcade.misc.save_h5py import save_results,load_results
+from pyrlcade.state.boxing_ram_extractor import boxing_ram_extractor
 from pyrlcade.state.breakout_ram_extractor import breakout_ram_extractor
 from pyrlcade.state.tabular_ram_qsa import tabular_ram_qsa
 from pyrlcade.state.nnet_qsa import nnet_qsa
@@ -265,7 +266,7 @@ class rl_runner(object):
             if(self.debug_level >= 1):
                 m, s = divmod(time.time() - self.start_time, 60)
                 h, m = divmod(m, 60)
-                sys.stdout.write(("ep: %d" % self.episode) + (" epsilon: %2.4f" %self.epsilon) + " total r: " + str(self.r_sum) + (" avg_r: %2.4f" % self.r_sum_avg) + (" total_steps: %d" % self.total_steps) + (" steps/sec: %2.4f" % (1.0/self.avg_step_duration)))
+                sys.stdout.write(("ep: %d" % self.episode) + (" epsilon: %2.4f" %self.epsilon) + " total r: " + str(self.r_sum) + (" avg_r: %2.4f" % self.r_sum_avg) + (" lr: %2.4f" % self.alpha) + (" steps/sec: %2.4f" % (1.0/self.avg_step_duration)))
                 if(self.rl_algo == "q_learning_replay"):
                     sys.stdout.write(" r_buf_size: " + str(self.qsa_learner.replay_buff.buf_size))
                 if(type(self.qsa_learner.storage) is nnet_qsa and hasattr(self.qsa_learner.storage.net.layer[0],'zeta')):
@@ -291,7 +292,7 @@ class rl_runner(object):
 
             if(self.epsilon_reset_count > 0 and new_epsilon < self.epsilon_min):
                 self.epsilon += self.epsilon_init / 2
-                self.alpha += (self.learning_rate_init - self.alpha) / 2 #Todo: test if this works.
+                self.alpha += (self.learning_rate_init - self.alpha) / 2
                 self.epsilon_reset_count -= 1
 
 
@@ -436,6 +437,8 @@ class rl_runner(object):
             self.state_ram_extractor = breakout_ram_extractor(tabular_granularity)
         elif p['rom_file'].endswith("pong.bin"):
             self.state_ram_extractor = pong_ram_extractor(tabular_granularity)
+        elif p['rom_file'].endswith("boxing.bin"):
+            self.state_ram_extractor = boxing_ram_extractor(tabular_granularity)
 
         (state_size,state_mins,state_maxs) = self.state_ram_extractor.get_size_and_range()
         print("state_mins: " + str(state_mins))

@@ -16,7 +16,7 @@ class pyrlcade_environment(object):
         # self.ale.setBool('display_screen', True)
 
         self.ale.loadROM(rom_file)
-        self.legal_actions = self.ale.getMinimalActionSet()
+        self.legal_actions = self.ale.getLegalActionSet()
         ram_size = self.ale.getRAMSize()
         self.ram = np.zeros((ram_size),dtype=np.uint8)
         self.ale.getRAM(self.ram)

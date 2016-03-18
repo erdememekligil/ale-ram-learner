@@ -3,6 +3,7 @@ from pyrlcade.env.pyrlcade_environment import pyrlcade_environment
 from pyrlcade.runner.rl_runner import rl_runner
 from pyrlcade.misc.autoconvert import autoconvert
 from pyrlcade.misc.save_h5py import save_results,load_results
+from random import randint
 
 
 class main_rerunner(object):
@@ -23,7 +24,10 @@ class main_rerunner(object):
         f = load_results(h5py_file)
         p = f['parameters']
         p['qsa_values'] = f['qsa_values']
-
+        p['fastforwardskip'] = 1
+        p['showevery'] = 1
+        #p['ale_frame_skip'] = 4
+        p['random_seed'] = randint(1,100)
 
         #grab extra parameters from command line
         for i in range(3,len(argv)):

@@ -5,6 +5,7 @@ import numpy as np
 class breakout_ram_extractor(object):
     def __init__(self, tabular):
         self.divs = np.array([10, 10, 5, 250, 40])
+        # self.divs = np.array([5, 5, 5, 250, 40])
 
         self.mins = np.array([0x00, 0x1A, 0x00, 0x00, 0x40])
         self.maxs = np.array([0xB2, 0xE9, 0xD1, 0xF0, 0x80])
